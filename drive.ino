@@ -1,3 +1,15 @@
+/*Arduino code for motor control
+0 0 0 0 0
+0 0 0 0 1
+0 0 0 1 0
+0 0 1 0 0
+0 1 0 0 0
+1 0 0 0 0
+and drives pins correspondingly to drive wheelchair via 5-way controller
+Wesley Schon, Dan Pettinger
+Georgia Tech VIP Secure Hardware 2016
+*/
+
 
 
 #include <SPI.h>
