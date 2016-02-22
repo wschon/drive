@@ -10,6 +10,21 @@ Wesley Schon, Dan Pettinger
 Georgia Tech VIP Secure Hardware 2016
 */
 
+/*NEW FORMAT FOR CAN BUS MESSAGES:
+ * 3 0 0 0 x
+ * ^3 indicates that this is a drive command
+ *
+ * x can be replaced with various numbers to indicate specific command:
+ * 0 = brake
+ * 1 = forward
+ * 2 = reverse
+ * 3 = right
+ * 4 = left
+ *
+ * middle 3 bits are arbitrary.  They could potentially be used to include other information along with
+ * driving commands on the bus simultaneously in the future (since this code ignores them)
+ */
+
 
 
 #include <SPI.h>
@@ -84,7 +99,12 @@ void loop()
                 digitalWrite(5, HIGH);
                 digitalWrite(6, HIGH);
               }
-              else {                    //
+              else {                    //The wheelchair needs to start forward from stationary by pulsing input for several seconds...
+                /////INSERT FUNCTION CALL OR LOOP HERE!!!!
+              }
+            case 2:                     //Reverse case
+
+
 
 
           }
