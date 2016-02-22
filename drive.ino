@@ -9,6 +9,20 @@ and drives pins correspondingly to drive wheelchair via 5-way controller
 Wesley Schon, Dan Pettinger
 Georgia Tech VIP Secure Hardware 2016
 */
+/*NEW FORMAT FOR CAN BUS MESSAGES:
+ * 3 0 0 0 x
+ * ^3 indicates that this is a drive command
+ *
+ * x can be replaced with various numbers to indicate specific command:
+ * 0 = brake
+ * 1 = forward
+ * 2 = reverse
+ * 3 = right
+ * 4 = left
+ *
+ * middle 3 bits are arbitrary.  They could potentially be used to include other information along with
+ * driving commands on the bus simultaneously in the future (since this code ignores them)
+ */
 
 
 
@@ -66,29 +80,46 @@ void loop()
 */
 
 
-        if (buf[0] == 3 {             //if the message on the CAN bus is a driving command
-          switch(buf[len]) {          //The last bit on the message holds the specificdriving command
-            case 0:                   //brake case
-              digitalWrite(2, HIGH);
-              digitalWrite(3, HIGH);
-              digitalWrite(4, HIGH);
-              digitalWrite(5, HIGH);
-              digitalWrite(6, LOW);
-              fwd = false;
-              rev = false;
-            case 1:                    //Forward case
-              if (fwd == true)  {      //if the wheelchair was already driving forward
-                digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
-                digitalWrite(3, HIGH);
-                digitalWrite(4, HIGH);
-                digitalWrite(5, HIGH);
-                digitalWrite(6, HIGH);
-              }
-              else {                    //
+if (buf[0] == 3 {             //if the message on the CAN bus is a driving command
+  switch(buf[len]) {          //The last bit on the message holds the specificdriving command
+    case 0:                   //brake case
+      digitalWrite(2, HIGH);
+      digitalWrite(3, HIGH);
+      digitalWrite(4, HIGH);
+      digitalWrite(5, HIGH);
+      digitalWrite(6, LOW);
+      fwd = false;
+      rev = false;
+    case 1:                    //Forward case
+      if (fwd == true)  {      //if the wheelchair was already driving forward
+        digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
+        digitalWrite(5, HIGH);
+        digitalWrite(6, HIGH);
+      }
+      else {                    //The wheelchair needs to start forward from stationary by pulsing input for several seconds...
+        /////INSERT FUNCTION CALL OR LOOP HERE!!!!
+      }
+    case 2:                     //Reverse case
+      //////INSERT FUNCTION CALL HERE!!!
+    case 3:                    //Turning right case
+      digitalWrite(2, HIGH);
+      digitalWrite(3, HIGH);
+      digitalWrite(4, LOW);
+      digitalWrite(5, HIGH);
+      digitalWrite(6, HIGH);
+    case 4:                    //Turning left case
+      digitalWrite(2, HIGH);
+      digitalWrite(3, HIGH);
+      digitalWrite(4, HIGH);
+      digitalWrite(5, LOW);
+      digitalWrite(6, HIGH);
 
 
-          }
-        }
+
+  }
+}
 
 
 
