@@ -130,6 +130,7 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
     }
 }
 //pulse function to send pulses to reach a certain speed when moving forwards/backwards
+
 void pulse(double on, double off){
     int n=3;
     if (fwd)
