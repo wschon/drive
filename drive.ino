@@ -20,6 +20,8 @@ unsigned char Flag_Recv = 0;
 unsigned char len = 0;
 unsigned char buf[8];
 char str[20];
+bool fwd = false;
+bool rev = false;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -53,14 +55,43 @@ void loop()
     {
         CAN.readMsgBuf(&len, buf);    // read data,  len: data length, buf: data buf
 
+        ///////////Commenting out the next few lines for now
+/*
         for(int i = 0; i<len; i++)  {  // print the data
-        if (buf[i] == 1) 
+        if (buf[i] == 1)
         digitalWrite(i+2,HIGH);
         else
         digitalWrite(i+2,LOW);
         //Serial.println("Stuff happening");
-        
-        
+*/
+
+
+        if (buf[0] == 3 {             //if the message on the CAN bus is a driving command
+          switch(buf[len]) {          //The last bit on the message holds the specificdriving command
+            case 0:                   //brake case
+              digitalWrite(2, HIGH);
+              digitalWrite(3, HIGH);
+              digitalWrite(4, HIGH);
+              digitalWrite(5, HIGH);
+              digitalWrite(6, LOW);
+              fwd = false;
+              rev = false;
+            case 1:                    //Forward case
+              if (fwd == true)  {      //if the wheelchair was already driving forward
+                digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
+                digitalWrite(3, HIGH);
+                digitalWrite(4, HIGH);
+                digitalWrite(5, HIGH);
+                digitalWrite(6, HIGH);
+              }
+              else {                    //
+
+
+          }
+        }
+
+
+
             Serial.print(buf[i]);Serial.print("\t");
         }
         Serial.println();
