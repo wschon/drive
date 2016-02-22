@@ -103,7 +103,19 @@ void loop()
                 /////INSERT FUNCTION CALL OR LOOP HERE!!!!
               }
             case 2:                     //Reverse case
-
+              //////INSERT FUNCTION CALL HERE!!!
+            case 3:                    //Turning right case
+              digitalWrite(2, HIGH);
+              digitalWrite(3, HIGH);
+              digitalWrite(4, LOW);
+              digitalWrite(5, HIGH);
+              digitalWrite(6, HIGH);
+            case 4:                    //Turning left case
+              digitalWrite(2, HIGH);
+              digitalWrite(3, HIGH);
+              digitalWrite(4, HIGH);
+              digitalWrite(5, LOW);
+              digitalWrite(6, HIGH);
 
 
 
@@ -113,10 +125,10 @@ void loop()
 
 
             Serial.print(buf[i]);Serial.print("\t");
-        }
-        Serial.println();
-        //delay(1000);
-    }
+     }
+     Serial.println();
+     //delay(1000);
+
 }
 
 /*********************************************************************************************************
