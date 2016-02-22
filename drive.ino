@@ -133,7 +133,7 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
 void pulse(double on, double off){
     int n=3;
     if (fwd)
-    int n = 2;
+    n = 2;
     digitalWrite(n, HIGH);
     delayMicroseconds(on);
     digitalWrite(n, LOW);
