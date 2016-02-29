@@ -85,7 +85,7 @@ void loop()
 */
 
 
-if (buf[0] == 3 {             //if the message on the CAN bus is a driving command
+if (buf[0] == 3) {             //if the message on the CAN bus is a driving command
   switch(buf[len-1]) {          //The last bit on the message holds the specificdriving command, last bit should be (len-1),right?
     case 1:                   //brake case
       digitalWrite(2, HIGH);
@@ -169,7 +169,7 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
 
 
 
-            Serial.print(buf[i]);Serial.print("\t");
+//            Serial.print(buf[i]);Serial.print("\t");
         }
         Serial.println();
         //delay(1000);
