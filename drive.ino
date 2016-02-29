@@ -6,20 +6,22 @@
 0 1 0 0 0
 1 0 0 0 0
 and drives pins correspondingly to drive wheelchair via 5-way controller
-Wesley Schon, Dan Pettinger
-Georgia Tech VIP Secure Hardware 2016
+Wesley Schon, Dan Pettinger, Siyan Yu
+Georgia Tech VIP Secure Hardware and Robosense 2016
 */
 /*NEW FORMAT FOR CAN BUS MESSAGES:
  * 3 0 0 0 x
  * ^3 indicates that this is a drive command
  *
  * x can be replaced with various numbers to indicate specific command:
- * 0 = brake
- * 1 = forward
- * 2 = reverse
- * 3 = right
- * 4 = left
- *
+
+ * 1 = brake                p6
+ * 2 = accelerate forward   p2
+ * 3 = forward              p2
+ * 4 = accelerate reverse   p3
+ * 5 = reverse              p3
+ * 6 = left                 p4
+ * 7 = right                p5
  * middle 3 bits are arbitrary.  They could potentially be used to include other information along with
  * driving commands on the bus simultaneously in the future (since this code ignores them)
  */
@@ -36,9 +38,9 @@ unsigned char buf[8];
 char str[20];
 bool fwd = false;
 bool rev = false;
-int on = 200; //arbitrary numbers for frequency of pulses, needed to be changed.
+int on = 200; //arbitrary numbers for frequency of pulses, need to be changed.
 int off = 200;
-int n = 20;
+int cycles = 5;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -85,7 +87,7 @@ void loop()
 
 if (buf[0] == 3 {             //if the message on the CAN bus is a driving command
   switch(buf[len-1]) {          //The last bit on the message holds the specificdriving command, last bit should be (len-1),right?
-    case 0:                   //brake case
+    case 1:                   //brake case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, HIGH);
@@ -93,7 +95,19 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
       digitalWrite(6, LOW);
       fwd = false;
       rev = false;
-    case 1:                    //Forward case
+      break;
+      
+    case 2:             //Accelerate forward case
+    fwd = true;
+    rev = false;
+    
+    digitalWrite(3, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(5, HIGH);
+    digitalWrite(6, HIGH);
+    pulse(on, off, cycles);
+    
+    case 3:                    //Forward case
       if (fwd == true)  {      //if the wheelchair was already driving forward
         digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
         digitalWrite(3, HIGH);
@@ -103,32 +117,53 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
       }
       else {                    //The wheelchair needs to start forward from stationary by pulsing input for several seconds...
         /////INSERT FUNCTION CALL OR LOOP HERE!!!!
-        pulse(on,off);
+        fwd = true;
+        rev = false;
+        digitalWrite(3, HIGH);
+        digitalWrite(4, HIGH);
+        digitalWrite(5, HIGH);
+        digitalWrite(6, HIGH);
+        pulse(on,off,cycles);
+      }
+      
+    case 4:             //Accelerate reverse case
+        fwd = false;
+        rev = true;
+        digitalWrite(2, HIGH);
+        digitalWrite(4, HIGH);
+        digitalWrite(5, HIGH);
+        digitalWrite(6, HIGH);
+        pulse(on, off, cycles);
+    case 5:                     //Reverse case
+    if (rev == true)  {      //if the wheelchair was already driving forward
+        digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
         digitalWrite(3, HIGH);
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
       }
-    case 2:                     //Reverse case
+      else {                
       //////INSERT FUNCTION CALL HERE!!!
       fwd = false; //specify the moving direction if not set before. 
       rev = true;
-      pulse(on,off);  
-    case 3:                    //Turning right case
+      digitalWrite(2, HIGH);
+      digitalWrite(4, HIGH);
+      digitalWrite(5, HIGH);
+      digitalWrite(6, HIGH);
+      pulse(on,off,cycles);
+      
+    case 6:                    //Turning right case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, LOW);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
-    case 4:                    //Turning left case
+    case 7:                    //Turning left case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, HIGH);
       digitalWrite(5, LOW);
       digitalWrite(6, HIGH);
-
-
-
   }
 }
 
@@ -141,14 +176,14 @@ if (buf[0] == 3 {             //if the message on the CAN bus is a driving comma
     }
 }
 //pulse function to send pulses to reach a certain speed when moving forwards/backwards
-void pulse(double on, double off,int n){
+void pulse(double on, double off,int cycles){
     int n=3;
     if (fwd)
     n = 2;
-    for (int i =0; i<n;i++){
-    digitalWrite(n, HIGH);
-    delayMicroseconds(on);
+    for (int i =0; i<=cycles ;i++){
     digitalWrite(n, LOW);
+    delayMicroseconds(on);
+    digitalWrite(n, HIGH);
     delayMicroseconds(off);
     }
 }
