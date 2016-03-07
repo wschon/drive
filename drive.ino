@@ -45,6 +45,10 @@ int on2 = 500;
 int off2 = 500;
 int cycles2 = 2;
 int reverse_count = 0;
+int pulsecount = 0;
+bool inc = true;
+int per1 = 2000000000;
+int per2 = 2000000000;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -114,29 +118,16 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
     digitalWrite(6, HIGH);
-    pulse(on, off, cycles);
+    pulse(2, per1);
     break;
 
     case 3:                    //Forward case
-      if (fwd == true)  {      //if the wheelchair was already driving forward
-        digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
+      digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
         digitalWrite(3, HIGH);
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
         break;
-      }
-      else {                    //The wheelchair needs to start forward from stationary by pulsing input for several seconds...
-        /////INSERT FUNCTION CALL OR LOOP HERE!!!!
-        fwd = true;
-        rev = false;
-        digitalWrite(3, HIGH);
-        digitalWrite(4, HIGH);
-        digitalWrite(5, HIGH);
-        digitalWrite(6, HIGH);
-        pulse(on,off,cycles);
-        break;
-      }
 
     case 4:             //Accelerate reverse case
         fwd = false;
@@ -145,12 +136,9 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
-        pulse(on2, off2, cycles2);
-        if(reverse_count == 20) {
-          on2 -= 10;
-          off2 -= 10;
-          if(cycles < 6)
-            cycles++;
+        pulse(3, per2);
+        if(reverse_count = 40) {
+          per2-=10;
           reverse_count = 0;
         }
         reverse_count++;
@@ -172,7 +160,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       digitalWrite(4, HIGH);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
-      pulse(on,off,cycles);
+      pulse(3, per2);
       break;
 
     case 6:                    //Turning right case
@@ -201,16 +189,22 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     }
 }
 //pulse function to send pulses to reach a certain speed when moving forwards/backwards
-void pulse(double on, double off,int cycles){
-    int n=3;
-    if (fwd)
-    n = 2;
-    for (int i =0; i<=cycles ;i++){
-    digitalWrite(n, LOW);
-    delay(on);
-    digitalWrite(n, HIGH);
-    delay(off);
+void pulse(int pin, int per){
+
+    if (inc) {
+      pulsecount++;
+      digitalWrite(pin, LOW);
+      if (pulsecount >= per);
+        inc = false;
+      }
+    else {
+       pulsecount--;
+       digitalWrite(pin, HIGH);
+       if(pulsecount <= 0)
+        inc = true;
     }
+
+
 }
 
 /*********************************************************************************************************
