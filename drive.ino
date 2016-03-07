@@ -47,14 +47,14 @@ MCP_CAN CAN(10);                                            // Set CS to pin 10
 
 void setup()
 {
-    Serial.begin(115200);
+    Serial.begin(9600);
      for (int i=0; i<=4; i++) {;
       pinMode(i+2, OUTPUT);
      }
 
 START_INIT:
 
-    if(CAN_OK == CAN.begin(CAN_500KBPS))                   // init can bus : baudrate = 500k
+    if(CAN_OK == CAN.begin(CAN_1000KBPS))                   // init can bus : baudrate = 500k
     {
         Serial.println("CAN BUS Shield init ok!");
     }
@@ -73,7 +73,12 @@ void loop()
     if(CAN_MSGAVAIL == CAN.checkReceive())            // check if data coming
     {
         CAN.readMsgBuf(&len, buf);    // read data,  len: data length, buf: data buf
-
+        for(int i = 0; i<len; i++)    // print the data
+        {
+            Serial.print(buf[i], HEX);
+            Serial.print("\t");
+        }
+        Serial.println();
         ///////////Commenting out the next few lines for now
 /*
         for(int i = 0; i<len; i++)  {  // print the data
@@ -86,7 +91,7 @@ void loop()
 
 
 if (buf[0] == 3) {             //if the message on the CAN bus is a driving command
-  switch(buf[len-1]) {          //The last bit on the message holds the specificdriving command, last bit should be (len-1),right?
+  switch(buf[4]) {          //The last bit on the message holds the specificdriving command, last bit should be (len-1),right?
     case 1:                   //brake case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
@@ -96,17 +101,17 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       fwd = false;
       rev = false;
       break;
-      
+
     case 2:             //Accelerate forward case
     fwd = true;
     rev = false;
-    
+
     digitalWrite(3, HIGH);
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
     digitalWrite(6, HIGH);
     pulse(on, off, cycles);
-    
+
     case 3:                    //Forward case
       if (fwd == true)  {      //if the wheelchair was already driving forward
         digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
@@ -125,7 +130,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(6, HIGH);
         pulse(on,off,cycles);
       }
-      
+
     case 4:             //Accelerate reverse case
         fwd = false;
         rev = true;
@@ -142,16 +147,16 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
       }
-      else {                
+      else {
       //////INSERT FUNCTION CALL HERE!!!
-      fwd = false; //specify the moving direction if not set before. 
+      fwd = false; //specify the moving direction if not set before.
       rev = true;
       digitalWrite(2, HIGH);
       digitalWrite(4, HIGH);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
       pulse(on,off,cycles);
-      
+
     case 6:                    //Turning right case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
