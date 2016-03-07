@@ -38,9 +38,13 @@ unsigned char buf[8];
 char str[20];
 bool fwd = false;
 bool rev = false;
-int on = 200; //arbitrary numbers for frequency of pulses, need to be changed.
-int off = 200;
+int on = 500; //arbitrary numbers for frequency of pulses, need to be changed.
+int off = 500;
 int cycles = 5;
+int on2 = 500;
+int off2 = 500;
+int cycles2 = 2;
+int reverse_count = 0;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -111,6 +115,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     digitalWrite(5, HIGH);
     digitalWrite(6, HIGH);
     pulse(on, off, cycles);
+    break;
 
     case 3:                    //Forward case
       if (fwd == true)  {      //if the wheelchair was already driving forward
@@ -119,6 +124,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
+        break;
       }
       else {                    //The wheelchair needs to start forward from stationary by pulsing input for several seconds...
         /////INSERT FUNCTION CALL OR LOOP HERE!!!!
@@ -129,6 +135,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
         pulse(on,off,cycles);
+        break;
       }
 
     case 4:             //Accelerate reverse case
@@ -138,7 +145,16 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
-        pulse(on, off, cycles);
+        pulse(on2, off2, cycles2);
+        if(reverse_count == 20) {
+          on2 -= 10;
+          off2 -= 10;
+          if(cycles < 6)
+            cycles++;
+          reverse_count = 0;
+        }
+        reverse_count++;
+        break;
     case 5:                     //Reverse case
     if (rev == true)  {      //if the wheelchair was already driving forward
         digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
@@ -146,6 +162,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
+        break;
       }
       else {
       //////INSERT FUNCTION CALL HERE!!!
@@ -156,6 +173,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
       pulse(on,off,cycles);
+      break;
 
     case 6:                    //Turning right case
       digitalWrite(2, HIGH);
@@ -163,12 +181,14 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       digitalWrite(4, LOW);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
+      break;
     case 7:                    //Turning left case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, HIGH);
       digitalWrite(5, LOW);
       digitalWrite(6, HIGH);
+      break;
   }
 }
 
@@ -187,9 +207,9 @@ void pulse(double on, double off,int cycles){
     n = 2;
     for (int i =0; i<=cycles ;i++){
     digitalWrite(n, LOW);
-    delayMicroseconds(on);
+    delay(on);
     digitalWrite(n, HIGH);
-    delayMicroseconds(off);
+    delay(off);
     }
 }
 
