@@ -20,8 +20,8 @@ Georgia Tech VIP Secure Hardware and Robosense 2016
  * 3 = forward              p2
  * 4 = accelerate reverse   p3
  * 5 = reverse              p3
- * 6 = left                 p4
- * 7 = right                p5
+ * 6 = right                p4
+ * 7 = left                 p5
  * middle 3 bits are arbitrary.  They could potentially be used to include other information along with
  * driving commands on the bus simultaneously in the future (since this code ignores them)
  */
@@ -47,8 +47,8 @@ int cycles2 = 2;
 int reverse_count = 0;
 int pulsecount = 0;
 bool inc = true;
-int per1 = 2000000000;
-int per2 = 2000000000;
+int per1 = 200000;
+int per2 = 200000;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -62,7 +62,7 @@ void setup()
 
 START_INIT:
 
-    if(CAN_OK == CAN.begin(CAN_1000KBPS))                   // init can bus : baudrate = 500k
+    if(CAN_OK == CAN.begin(CAN_1000KBPS))                   // init can bus : baudrate = 1000k
     {
         Serial.println("CAN BUS Shield init ok!");
     }
@@ -113,16 +113,15 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     case 2:             //Accelerate forward case
     fwd = true;
     rev = false;
-
+    pulse(2, per1);
     digitalWrite(3, HIGH);
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
     digitalWrite(6, HIGH);
-    pulse(2, per1);
     break;
 
     case 3:                    //Forward case
-      digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
+        digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
         digitalWrite(3, HIGH);
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
@@ -144,8 +143,8 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         reverse_count++;
         break;
     case 5:                     //Reverse case
-    if (rev == true)  {      //if the wheelchair was already driving forward
-        digitalWrite(2, HIGH); //Wheelchair was already driving forward and then adjusted.  Do not re-pulse, just drive all pins high
+    if (rev == true)  {      //
+        digitalWrite(2, HIGH); //
         digitalWrite(3, HIGH);
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
@@ -179,9 +178,6 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       break;
   }
 }
-
-
-
 //            Serial.print(buf[i]);Serial.print("\t");
         }
         Serial.println();
