@@ -47,8 +47,8 @@ int cycles2 = 2;
 int reverse_count = 0;
 int pulsecount = 0;
 bool inc = true;
-int per1 = 2000000;
-int per2 = 2000000;
+int per1 = 8000;
+int per2 = 20000;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -113,7 +113,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     case 2:             //Accelerate forward case
     fwd = true;
     rev = false;
-    pulse(2, per1);
+    pulse(2, per1, &pulsecount);
     digitalWrite(3, HIGH);
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
@@ -129,54 +129,42 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         break;
 
     case 4:             //Accelerate reverse case
-        fwd = false;
-        rev = true;
+
         digitalWrite(2, HIGH);
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
-        pulse(3, per2);
-        if(reverse_count == 40) {
-          per2-=10;
-          reverse_count = 0;
-        }
+        pulse(3, per2, &pulsecount);
+        if (per2 >= 10000)
+        per2-=10;
+//        reverse_count = 0;
+
         reverse_count++;
         break;
     case 5:                     //Reverse case
-    if (rev == true)  {      //
-        digitalWrite(2, HIGH); //
-        digitalWrite(3, HIGH);
-        digitalWrite(4, HIGH);
-        digitalWrite(5, HIGH);
-        digitalWrite(6, HIGH);
-        break;
-      }
-      else {
-      //////INSERT FUNCTION CALL HERE!!!
-      fwd = false; //specify the moving direction if not set before.
-      rev = true;
+
       digitalWrite(2, HIGH);
       digitalWrite(4, HIGH);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
-      pulse(3, per2);
+      pulse(3, per2, &pulsecount);
       break;
 
-    case 6:                    //Turning right case
+    case 7:                    //Turning left case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, LOW);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
       break;
-    case 7:                    //Turning left case
+    case 6:                    //Turning right case
       digitalWrite(2, HIGH);
       digitalWrite(3, HIGH);
       digitalWrite(4, HIGH);
       digitalWrite(5, LOW);
       digitalWrite(6, HIGH);
       break;
-  }
+
 }
 //            Serial.print(buf[i]);Serial.print("\t");
         }
@@ -185,22 +173,22 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     }
 }
 //pulse function to send pulses to reach a certain speed when moving forwards/backwards
-void pulse(int pin, int per){
+void pulse(int pin, int per, int* pulsecount){
 
     if (inc) {
-      pulsecount++;
-      Serial.print(pulsecount, HEX);
+      *pulsecount++;
+      Serial.print(*pulsecount, HEX);
       Serial.print("\t");
       digitalWrite(pin, LOW);
-      if (pulsecount >= per) {
-      Serial.println("Toggle inc to false");
+      if (*pulsecount >= per) {
+        Serial.println("Toggle inc to false");
         inc = false;
       }
       }
     else {
-       pulsecount--;
+       *pulsecount--;
        digitalWrite(pin, HIGH);
-       if(pulsecount <= 0) {
+       if(*pulsecount <= 0) {
         Serial.println("Toggle inc to true");
         inc = true;
        }
