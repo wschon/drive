@@ -47,8 +47,8 @@ int cycles2 = 2;
 int reverse_count = 0;
 int pulsecount = 0;
 bool inc = true;
-int per1 = 200000;
-int per2 = 200000;
+int per1 = 2000000;
+int per2 = 2000000;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -189,15 +189,21 @@ void pulse(int pin, int per){
 
     if (inc) {
       pulsecount++;
+      Serial.print(pulsecount, HEX);
+      Serial.print("\t");
       digitalWrite(pin, LOW);
-      if (pulsecount >= per);
+      if (pulsecount >= per) {
+      Serial.println("Toggle inc to false");
         inc = false;
+      }
       }
     else {
        pulsecount--;
        digitalWrite(pin, HIGH);
-       if(pulsecount <= 0)
+       if(pulsecount <= 0) {
+        Serial.println("Toggle inc to true");
         inc = true;
+       }
     }
 
 
