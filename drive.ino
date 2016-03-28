@@ -136,7 +136,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
         pulse(3, per2);
-        if(reverse_count = 40) {
+        if(reverse_count == 40) {
           per2-=10;
           reverse_count = 0;
         }
