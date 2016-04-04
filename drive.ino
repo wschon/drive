@@ -113,7 +113,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     case 2:             //Accelerate forward case
     fwd = true;
     rev = false;
-    pulse(2, per1, &pulsecount, 20); //50% duty cycle
+    pulse(2, per1, &pulsecount, 20); //20% duty cycle
     digitalWrite(3, HIGH);
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
