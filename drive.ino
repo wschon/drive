@@ -48,7 +48,7 @@ int reverse_count = 0;
 int pulsecount = 0;
 bool inc = true;
 int per1 = 8000;
-int per2 = 20000;
+int per2 = 1200;
 
 
 MCP_CAN CAN(10);                                            // Set CS to pin 10
@@ -113,7 +113,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     case 2:             //Accelerate forward case
     fwd = true;
     rev = false;
-    pulse(2, per1, &pulsecount);
+    pulse(2, per1, &pulsecount, 20); //50% duty cycle
     digitalWrite(3, HIGH);
     digitalWrite(4, HIGH);
     digitalWrite(5, HIGH);
@@ -134,12 +134,15 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
         digitalWrite(4, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(6, HIGH);
-        pulse(3, per2, &pulsecount);
-        if (per2 >= 10000)
-        per2-=10;
-//        reverse_count = 0;
-
-        reverse_count++;
+        pulse(3, per2, &pulsecount, 15);
+        if (reverse_count >= 10 & per2 >= 50) {
+          per2-=10;
+          reverse_count = 0;
+          Serial.print("Period 2:");
+          Serial.print(per2);
+          Serial.println();
+        }
+          reverse_count++;
         break;
     case 5:                     //Reverse case
 
@@ -147,7 +150,7 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
       digitalWrite(4, HIGH);
       digitalWrite(5, HIGH);
       digitalWrite(6, HIGH);
-      pulse(3, per2, &pulsecount);
+      pulse(3, per2, &pulsecount, 20);
       break;
 
     case 7:                    //Turning left case
@@ -173,16 +176,17 @@ if (buf[0] == 3) {             //if the message on the CAN bus is a driving comm
     }
 }
 //pulse function to send pulses to reach a certain speed when moving forwards/backwards
-void pulse(int pin, int per, int* pulsecount){
+void pulse(int pin, int per, int* pulsecount, int dc){
 
     if (inc) {
       *pulsecount++;
-      Serial.print(*pulsecount, HEX);
+      Serial.print(*pulsecount);
       Serial.print("\t");
       digitalWrite(pin, LOW);
-      if (*pulsecount >= per) {
-        Serial.println("Toggle inc to false");
+      if (*pulsecount >= per * dc / 100) {
+        Serial.print("Toggle inc to false");
         inc = false;
+        *pulsecount = *pulsecount * (100-dc) / 100;
       }
       }
     else {
